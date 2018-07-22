@@ -2,7 +2,6 @@ package com.sdl.StudentAdmission;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
@@ -80,8 +79,8 @@ public class Student implements Comparable<Student>,Serializable
 	public long getPhone_no() {
 		return phone_no;
 	}
-	public void setPhone_no(long phone_no) {
-		this.phone_no = phone_no;
+	public void setPhone_no(long d) {
+		this.phone_no = d;
 	}
 	public void register()
 	{
@@ -102,6 +101,8 @@ public class Student implements Comparable<Student>,Serializable
 		setId(sc.nextInt());
 		System.out.println("Enter your Contact No:");
 		setPhone_no(sc.nextLong());
+		
+		
 	}
 	public void Display()
 	{
@@ -152,11 +153,10 @@ public class Student implements Comparable<Student>,Serializable
 				dout.writeInt(ch);
 				switch(ch)
 				{
-				case 1:	ObjectInputStream ois = new ObjectInputStream(clientsoc.getInputStream());
-						Student stud = (Student)ois.readObject();
-						stud.register();
+				case 1:	Student s = new Student();
+						s.register();
 						ObjectOutputStream oos = new ObjectOutputStream(clientsoc.getOutputStream());
-						oos.writeObject(stud);
+						oos.writeObject(s);
 						System.out.print(din.readUTF());
 						break;
 				case 2:System.out.println("In admin Window");
