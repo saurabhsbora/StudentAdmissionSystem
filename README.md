@@ -1,6 +1,11 @@
 # StudentAdmissionSystem
 Student Admission System based on Java.
 
+### Prerequisites
+```
+Install mysql-server
+JDK 1.7/1.8
+```
 ## Installation
 On one session
 ```
