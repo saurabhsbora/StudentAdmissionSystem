@@ -22,7 +22,7 @@ public class Admin
 		if(flag == 0)
 			System.out.println("No Records Found");
 	}*/
-	public static void menu(MysqltoJava o) throws SQLException
+	public static void menu(DatabaseConnection o) throws SQLException
 	{
 		Scanner sc = new Scanner(System.in);
 		
@@ -66,7 +66,7 @@ public class Admin
 		System.out.println("Waiting for connection...");
 		Socket soc = Serversoc.accept();
 		System.out.println("Client Connected "+soc.getInetAddress());
-		MysqltoJava m = new MysqltoJava();
+		DatabaseConnection m = new DatabaseConnection();
 		
 		DataOutputStream dout = new DataOutputStream(soc.getOutputStream());
         DataInputStream din = new DataInputStream(soc.getInputStream());
