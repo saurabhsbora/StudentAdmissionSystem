@@ -1,4 +1,7 @@
 package com.sdl.StudentAdmission;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
 public class DatabaseConnection {
@@ -16,24 +19,33 @@ public class DatabaseConnection {
     }
 	public void writeTomysql(Student s) throws SQLException
 	{
-		
-	    
 	    PreparedStatement preparedStatement = null;
 		preparedStatement = conn.prepareStatement("insert into records values (?, ?, ?, ?, ?,?, ?,?)");
         
         preparedStatement.setString(1, s.getFname());
         preparedStatement.setString(2, s.getLname());
-        preparedStatement.setString(3, s.getEmail_id() );
+        preparedStatement.setString(3, s.getEmail_id());
         preparedStatement.setString(4, s.getDept());
-        preparedStatement.setString(5, s.getCurrentyear());
-        preparedStatement.setInt(6, s.getId());
-        preparedStatement.setInt(7, s.getYear());
+        preparedStatement.setInt(5, s.getYear());
+        preparedStatement.setString(6, s.getCurrentyear());
+        preparedStatement.setInt(7, s.getId());
         preparedStatement.setDouble(8,s.getPhone_no());
         preparedStatement.executeUpdate();
         System.out.println("Successfully added record to database");
-        preparedStatement.close();
-        
-        
+	}
+	public void writeCredentials(int a, String b, String c) throws NoSuchAlgorithmException, SQLException
+	{
+		 PreparedStatement preparedStatement = null;
+		 MessageDigest md = MessageDigest.getInstance("MD5");
+	     byte[] messageDigest = md.digest(c.getBytes());
+	     BigInteger number = new BigInteger(1, messageDigest);
+	     String hashstring = number.toString(16);
+		
+		 preparedStatement = conn.prepareStatement("insert into authenticate values(?, ?, ?)");
+		 preparedStatement.setInt(1, a);
+		 preparedStatement.setString(2, b);
+		 preparedStatement.setString(3, hashstring);
+		 preparedStatement.executeUpdate();
 	}
 	public ResultSet displaydny(String d, String y) throws SQLException
 	{
@@ -108,7 +120,35 @@ public class DatabaseConnection {
             System.out.print(id+"\t");
             System.out.print(year+"\t");
             System.out.print(ph_no+"\n");
-            }
-        
+            }  
+	}
+	public int validate(String u,String p,String query) throws SQLException, NoSuchAlgorithmException
+	{
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		String un="",pw="";
+		preparedStatement = conn.prepareStatement(query);
+		resultSet = preparedStatement.executeQuery();
+		
+		MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] messageDigest = md.digest(p.getBytes());
+        BigInteger number = new BigInteger(1, messageDigest);
+        String cstring = number.toString(16);
+        //System.out.println(cstring);
+		while(resultSet.next())
+		{
+			un = resultSet.getString(1);
+			pw = resultSet.getString(2);
+		}
+		//System.out.println("USER:   "+un);
+		//System.out.println("PASS:  "+pw);
+		if(un.equals(u) && pw.equals(cstring))
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 }

@@ -3,41 +3,56 @@ package com.sdl.StudentAdmission;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
-public class Server 
+public class Server implements Runnable
 {
-	public static void main(String args[]) throws IOException
+	ServerSocket ss;
+	ArrayList<ThreadedServer> connections = new ArrayList<ThreadedServer>();
+	public Server()
 	{
 		
-        ServerSocket ss = new ServerSocket(5057);
+	}
+	public void run() 
+	{
+        try 
+        {
+			ss = new ServerSocket(5057);
+		} 
+        catch (IOException e1) 
+        {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
         while (true) 
         {
-            Socket newclient = null;
-             
+        	System.out.println("Server Started");
+			System.out.println("Waiting for Clients.....");
             try
-            {
-                
-            	newclient = ss.accept();
+            { 
+            	Socket newclient = ss.accept();
                  
-                System.out.println("A new client is connected : " + newclient);
-                 
-                DataInputStream dis = new DataInputStream(newclient.getInputStream());
-                DataOutputStream dos = new DataOutputStream(newclient.getOutputStream());
-                 
+                System.out.println("A new client is connected : " + newclient);  
                 System.out.println("Assigning new thread for this client");
- 
-                Thread t = new ClientInterface(newclient, dis, dos);
                 
-                t.start();
+                ThreadedServer ts = new ThreadedServer(newclient);
+                new Thread(ts).start();
+                
+                connections.add(ts);
                  
             }
             catch (Exception e)
             {
-            	newclient.close();
                 e.printStackTrace();
             }
         }
 	}
+	public static void main(String args[]) 
+	{
+        (new Thread(new Server())).start();
+    }
 }
