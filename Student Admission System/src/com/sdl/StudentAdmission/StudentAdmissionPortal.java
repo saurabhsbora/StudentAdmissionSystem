@@ -22,22 +22,26 @@ import java.awt.event.ActionEvent;
 
 public class StudentAdmissionPortal extends JFrame {
 
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private static ThreadedClient threadedClient;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) 
-	{
-		StudentAdmissionPortal frame = new StudentAdmissionPortal();
-		frame.setVisible(true);
-		frame.setLocationRelativeTo(null);
+	public static JFrame parent;
+	
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					StudentAdmissionPortal frame = new StudentAdmissionPortal();
+					frame.setVisible(true);
+					frame.setLocationRelativeTo(null);
+					parent = frame;
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 	
-	/**
-	 * Create the frame.
-	 */
+	
 	public StudentAdmissionPortal() {
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -99,11 +103,19 @@ public class StudentAdmissionPortal extends JFrame {
 		JButton StudentLogin = new JButton("Student Login");
 		StudentLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				StudentLogin sl = new StudentLogin();
+				StudentLogin sl = null;
+				try {
+					sl = new StudentLogin();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				sl.setVisible(true);
 				sl.setLocationRelativeTo(null);
-				sl.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				dispose();
+				parent.setVisible(false);
 			}
 		});
 		StudentLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -121,8 +133,7 @@ public class StudentAdmissionPortal extends JFrame {
 				AdminLogin al = new AdminLogin();
 				al.setVisible(true);
 				al.setLocationRelativeTo(null);
-				al.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				dispose();
+				parent.setVisible(false);
 			}
 		});
 		AdminLogin.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

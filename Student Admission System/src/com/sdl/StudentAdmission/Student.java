@@ -5,34 +5,34 @@ import java.util.Scanner;
 public class Student implements Comparable<Student>,Serializable
 {
 	private static final long serialVersionUID = -4929836389095189613L;
-	private String fname,lname,email_id,dept,currentyear;
-	private int id,year;
+	private String fname,lname,email_id,dept,engyear;
+	private int id,admyear;
 	private long phone_no;
 	public Student()
 	{
-		fname = lname = email_id = dept = currentyear="";
-		id = year = 0;
+		fname = lname = email_id = dept = engyear="";
+		id = admyear = 0;
 		phone_no = 0;
 		//System.out.println("Student data not initialized");
 	}
 	public Student(String fname, String lname, String email_id, String dept,
-			String currentyear,int year, int id, long phone_no) 
+			String engyear,int admyear, int id, long phone_no) 
 	{
 		this.fname = fname;
 		this.lname = lname;
 		this.email_id = email_id;
 		this.dept = dept;
-		this.year = year;
+		this.admyear = admyear;
 		this.id = id;
 		this.phone_no = phone_no;
-		this.currentyear = currentyear;
+		this.engyear = engyear;
 		
 	}
-	public String getCurrentyear() {
-		return currentyear;
+	public String getEngyear() {
+		return engyear;
 	}
-	public void setCurrentyear(String currentyear) {
-		this.currentyear = currentyear;
+	public void setEngyear(String engyear) {
+		this.engyear = engyear;
 	}
 	public String getFname() {
 		return fname;
@@ -58,11 +58,11 @@ public class Student implements Comparable<Student>,Serializable
 	public void setDept(String dept) {
 		this.dept = dept;
 	}
-	public int getYear() {
-		return year;
+	public int getadmYear() {
+		return admyear;
 	}
-	public void setYear(int year) {
-		this.year = year;
+	public void setadmYear(int admyear) {
+		this.admyear = admyear;
 	}
 	public int getId() {
 		return id;
@@ -88,9 +88,9 @@ public class Student implements Comparable<Student>,Serializable
 		System.out.println("Enter your Department as CS/IT/ENTC:");
 		setDept(sc.next());
 		System.out.println("Enter your Admission year:");
-		setYear(sc.nextInt());
+		setadmYear(sc.nextInt());
 		System.out.println("Enter your Current Admission year as FE/SE/TE/BE:");
-		setCurrentyear(sc.next());
+		setEngyear(sc.next());
 		System.out.println("Enter your Unique ID:");
 		setId(sc.nextInt());
 		System.out.println("Enter your Contact No:");
@@ -105,8 +105,8 @@ public class Student implements Comparable<Student>,Serializable
 		System.out.println("Last Name:"+getLname());
 		System.out.println("Email-ID:"+getEmail_id());
 		System.out.println("Department:"+getDept());
-		System.out.println("Admission Year:"+getYear());
-		System.out.println("Current Admission Year Student:"+getCurrentyear());
+		System.out.println("Admission Year:"+getadmYear());
+		System.out.println("Current Admission Year Student:"+getEngyear());
 		System.out.println("Unique ID:"+getId());
 		System.out.println("Contact No:"+getPhone_no());
 	}
@@ -118,7 +118,7 @@ public class Student implements Comparable<Student>,Serializable
 	}
 	public String toString()
 	{
-		 return getFname()+"\t"+getLname()+"\t"+getEmail_id()+"\t"+getDept()+"\t"+getYear()+"\t"+getCurrentyear()+"\t"+getId()+"\t"+getPhone_no();  
+		 return getFname()+"\t"+getLname()+"\t"+getEmail_id()+"\t"+getDept()+"\t"+getadmYear()+"\t"+getEngyear()+"\t"+getId()+"\t"+getPhone_no();  
 	}
 	@Override
 	public boolean equals(Object o)

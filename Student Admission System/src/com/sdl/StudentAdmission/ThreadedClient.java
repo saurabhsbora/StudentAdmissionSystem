@@ -20,56 +20,45 @@ public class ThreadedClient implements Runnable
 	
 	public ThreadedClient() 
 	{
-		
+		try {
+			clientsoc = new Socket("localhost",5057);
+			System.out.println("Connected to Server");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	public void run()
 	{
-		try {
-			clientsoc = new Socket("localhost",5057);
-			System.out.println("Connected to server");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		System.out.println("ThreadedClient is running....");
 	}
-	public void sendObjectToServer(Wrapper w)
+	public void sendObjectToServer(Wrapper w) throws IOException
 	{
-		try 
-		{
-			System.out.println(w.getVector());
-			oos = new ObjectOutputStream(clientsoc.getOutputStream());
-			oos.writeObject(w);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		oos = new ObjectOutputStream(clientsoc.getOutputStream());
+		oos.writeObject(w);
 	}
-	public  void recieveObjectFromServer() throws IOException, ClassNotFoundException
+	public Wrapper recieveObjectFromServer() throws IOException, ClassNotFoundException
 	{
-		
+		ois = new ObjectInputStream(clientsoc.getInputStream());
 		Wrapper w = (Wrapper)ois.readObject();
+		ois.close();
+		return w;
 	}
 	public  void sendMsgtoServer(String str) throws IOException
 	{
-		
+		dos = new DataOutputStream(clientsoc.getOutputStream());
 		dos.writeUTF(str);
+		dos.close();
 	}
 	public  String receiveMsgFromServer() throws IOException
 	{
-		
 		dis = new DataInputStream(clientsoc.getInputStream());
-		return dis.readUTF();
+		String msg = dis.readUTF();
+		dis.close();
+		return msg;
 	}
 	public void close() throws IOException
 	{
-		ois.close();
-		oos.close();
-		dis.close();
-		dos.close();
 		clientsoc.close();
-	}
-	public static void main(String args[])
-	{
-		
 	}
 }

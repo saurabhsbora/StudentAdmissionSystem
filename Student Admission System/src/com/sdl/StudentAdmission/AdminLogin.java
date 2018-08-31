@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.security.NoSuchAlgorithmException;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.awt.Cursor;
 import javax.swing.JButton;
@@ -23,13 +23,13 @@ import java.awt.event.ActionEvent;
 
 public class AdminLogin extends JFrame {
 
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField UsernameField;
 	private JPasswordField passwordField;
-	private DatabaseConnection dc;
-	/**
-	 * Launch the application.
-	 */
+	public static ThreadedClient threadedClient;
+	
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -43,12 +43,13 @@ public class AdminLogin extends JFrame {
 			}
 		});
 	}
-
-	/**
-	 * Create the frame.
-	 */
+	public void setDashboard() throws ClassNotFoundException, IOException, SQLException, InterruptedException
+	{
+		AdminDashboard ad = new AdminDashboard();
+		ad.setVisible(true);
+		ad.setLocationRelativeTo(null);
+	}
 	public AdminLogin() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 518, 392);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -73,7 +74,8 @@ public class AdminLogin extends JFrame {
 		CloseLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				System.exit(0);
+				dispose();
+				StudentAdmissionPortal.parent.setVisible(true);
 			}
 		});
 		CloseLabel.setFont(new Font("Calibri", Font.PLAIN, 32));
@@ -93,7 +95,7 @@ public class AdminLogin extends JFrame {
 		MinimizeLabel.setForeground(new Color(255, 255, 255));
 		MinimizeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		MinimizeLabel.setFont(new Font("Calibri", Font.PLAIN, 40));
-		MinimizeLabel.setBounds(420, 17, 43, 41);
+		MinimizeLabel.setBounds(420, 13, 43, 41);
 		panel.add(MinimizeLabel);
 		
 		JPanel panel_1 = new JPanel();
@@ -129,7 +131,13 @@ public class AdminLogin extends JFrame {
 		final JButton LoginButton = new JButton("Login");
 		LoginButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				check(LoginButton);
+				try {
+					bindToServer();
+					check(LoginButton);
+				} catch (IOException | InterruptedException | ClassNotFoundException | SQLException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		});
 		LoginButton.setRequestFocusEnabled(false);
@@ -143,27 +151,31 @@ public class AdminLogin extends JFrame {
 		
 		setUndecorated(true);
 	}
-	public void check(JButton btn)
+	public void bindToServer() throws IOException, InterruptedException
 	{
+		threadedClient = new ThreadedClient();
+		new Thread(threadedClient).start();
+	}
+	public void check(JButton btn) throws IOException, ClassNotFoundException, SQLException, InterruptedException
+	{
+		String ans;
 		String uname = UsernameField.getText();
 		char[] a = passwordField.getPassword();
 		String pass = new String(a);
-		int ch;
-		try 
+		Wrapper w = new Wrapper("Admin",uname, pass);
+		threadedClient.sendObjectToServer(w);
+		ans = threadedClient.receiveMsgFromServer();	
+		if(ans.equals("Authorization Successfull"))	
 		{
-			dc = new DatabaseConnection();
-			ch = dc.validate(uname, pass,"select * from admin");
-			if(ch == 1)
-			{
-				  JOptionPane.showMessageDialog(btn, "Authorization Successfull");
-			}
-			else
-			{
-				JOptionPane.showMessageDialog(btn, "Username or password does not match!");
-			}		
-		} catch (ClassNotFoundException | SQLException | NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(btn, "Authorization Successfull");
+			setVisible(false);
+			threadedClient.close();
+			setDashboard();
+		}	
+		else
+		{
+			JOptionPane.showMessageDialog(btn, "Username or password does not match!");
+			threadedClient.close();
 		}
 	}
 }

@@ -22,14 +22,14 @@ import java.awt.event.ActionEvent;
 
 public class StudentLogin extends JFrame {
 
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTextField UsernameField;
 	private JPasswordField passwordField;
 	private static ThreadedClient threadedClient;
+	public static JFrame firstchild;
 
-	/**
-	 * Launch the application.
-	 */
+
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -46,15 +46,11 @@ public class StudentLogin extends JFrame {
 	public void bindToServer() throws IOException, InterruptedException
 	{
 		threadedClient = new ThreadedClient();
-		Thread t = new Thread(threadedClient);
-		t.start();
+		new Thread(threadedClient).start();
 	}
 
-	/**
-	 * Create the frame.
-	 */
-	public StudentLogin() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	public StudentLogin() throws IOException, InterruptedException {
+		firstchild = this;
 		setBounds(100, 100, 518, 392);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -79,7 +75,8 @@ public class StudentLogin extends JFrame {
 		CloseLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				System.exit(0);
+				dispose();
+				StudentAdmissionPortal.parent.setVisible(true);
 			}
 		});
 		CloseLabel.setFont(new Font("Calibri", Font.PLAIN, 32));
@@ -163,9 +160,7 @@ public class StudentLogin extends JFrame {
 				RegisterForm rgr = new RegisterForm();
 				rgr.setVisible(true);
 				rgr.setLocationRelativeTo(null);
-				rgr.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				dispose();
-				
+				firstchild.setVisible(false);
 			}
 		});
 		RegisterButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -182,7 +177,7 @@ public class StudentLogin extends JFrame {
 		String uname = UsernameField.getText();
 		char[] a = passwordField.getPassword();
 		String pass = new String(a);
-		Wrapper w = new Wrapper(uname, pass);
+		Wrapper w = new Wrapper("Student",uname, pass);
 		threadedClient.sendObjectToServer(w);
 		ans = threadedClient.receiveMsgFromServer();	
 		if(ans.equals("Authorization Successfull"))		  
