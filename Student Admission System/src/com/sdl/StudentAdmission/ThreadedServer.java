@@ -74,9 +74,16 @@ public class ThreadedServer extends Thread
 	public void connectAdmin() throws ClassNotFoundException, SQLException, IOException
 	{
 		DatabaseConnection dc = new DatabaseConnection();
-		Wrapper w = new Wrapper(dc.retrieveMysql());
+		Wrapper w = new Wrapper(dc.retrieveMysql("Select * from records"));
 		oos = new ObjectOutputStream(sock.getOutputStream());
 		oos.writeObject(w);
+	}
+	public void connectStudent(Wrapper w) throws ClassNotFoundException, SQLException, IOException
+	{
+		DatabaseConnection dc = new DatabaseConnection();
+		Wrapper w1 = new Wrapper(dc.retrieveMysql("Select r.* from records r, authenticate a where r.uniqueID = a.uniqueID and a.username = '"+w.getMsg()+"'"));
+		oos = new ObjectOutputStream(sock.getOutputStream());
+		oos.writeObject(w1);
 	}
 	public void run()
 	{
@@ -105,6 +112,13 @@ public class ThreadedServer extends Thread
 				e.printStackTrace();
 				}
 				break;
+		case 2: try {
+				connectStudent(wrap);
+			} catch (ClassNotFoundException | SQLException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			break;
 		}
 	}
 }

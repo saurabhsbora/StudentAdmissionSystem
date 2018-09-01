@@ -62,13 +62,13 @@ public class DatabaseConnection {
 		}
 		System.out.println("Count of "+y+" in "+d+":"+depyear);	
 	}
-	public Vector<Student> retrieveMysql() throws SQLException
+	public Vector<Student> retrieveMysql(String query) throws SQLException
 	{
 		Vector<Student> vs = new Vector<Student>();	
 		PreparedStatement preparedStatement = null;
 		ResultSet rs = null;
 
-	    preparedStatement = conn.prepareStatement("Select * from records");
+	    preparedStatement = conn.prepareStatement(query);
 	    rs = preparedStatement.executeQuery();
 	    
 	    while(rs.next())

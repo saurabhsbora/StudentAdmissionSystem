@@ -4,9 +4,12 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import java.awt.Color;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import java.awt.Image;
 
@@ -14,14 +17,35 @@ import javax.swing.SwingConstants;
 import javax.swing.ImageIcon;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.util.Vector;
+
 import javax.swing.JTabbedPane;
 import java.awt.Component;
 import javax.swing.JSeparator;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import javax.swing.JButton;
+import javax.swing.JTextField;
+import javax.swing.JPasswordField;
 
 public class StudentDashboard extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
+	private JTable table;
+	private JTextField UFirstNameTextField;
+	private JTextField ULastNameTextField;
+	private JTextField UUsernameTextField;
+	private JPasswordField UPassTextField;
+	private JTextField UEmailTextField;
+	private JTextField UPhoneTextField;
+	private static ThreadedClient threadedClient;
+	private Student s;
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -35,8 +59,36 @@ public class StudentDashboard extends JFrame {
 			}
 		});
 	}
-	
-	public StudentDashboard() {
+	public void bindToServer() throws IOException, InterruptedException
+	{
+		threadedClient = new ThreadedClient();
+		new Thread(threadedClient).start();
+	}
+	public void UpdateDetails()
+	{
+		String fname,lname,uname,email,pass;
+		char [] p;
+		long pno;
+		p = UPassTextField.getPassword();
+		pass = new String(p);
+		fname = UFirstNameTextField.getText();
+		lname = ULastNameTextField.getText();
+		uname = UUsernameTextField.getText();
+		email = UEmailTextField.getText();
+		pno = Long.parseLong(UPhoneTextField.getText());
+		Student s = new Student(fname,lname,email,pno);
+	}
+	public Vector<Student> loadProfile() throws IOException, InterruptedException, ClassNotFoundException
+	{
+		Wrapper wsend,wrecv;
+		Vector<Student> vs = null;
+		wsend = new Wrapper(vs,StudentLogin.UsernameField.getText());
+		bindToServer();
+		threadedClient.sendObjectToServer(wsend);
+		wrecv = threadedClient.recieveObjectFromServer();
+		return wrecv.getStudentVector();
+	}
+	public StudentDashboard() throws ClassNotFoundException, IOException, InterruptedException {
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1181, 632);
@@ -51,7 +103,7 @@ public class StudentDashboard extends JFrame {
 		panel.setBounds(0, 0, 1181, 78);
 		contentPane.add(panel);
 		
-		JLabel TitleLabel = new JLabel("Welcome ");
+		JLabel TitleLabel = new JLabel();
 		TitleLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		TitleLabel.setForeground(Color.WHITE);
 		TitleLabel.setFont(new Font("Calibri", Font.PLAIN, 32));
@@ -62,7 +114,12 @@ public class StudentDashboard extends JFrame {
 		CloseLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.exit(1);
+				int a=JOptionPane.showConfirmDialog(null,"Want to Logout?");
+				if(a==JOptionPane.YES_OPTION)
+				{ 
+					dispose();
+					StudentLogin.firstchild.setVisible(true);
+				}
 			}
 		});
 		CloseLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -115,7 +172,6 @@ public class StudentDashboard extends JFrame {
 		JPanel FeePanel = new JPanel();
 		FeePanel.setFont(new Font("Calibri", Font.PLAIN, 25));
 		FeePanel.setBackground(Color.WHITE);
-		FeePanel.setLayout(null);
 		
 		JPanel UpdatePanel = new JPanel();
 		UpdatePanel.setBackground(Color.WHITE);
@@ -167,61 +223,73 @@ public class StudentDashboard extends JFrame {
 		PhoneNoLabel.setBounds(303, 454, 184, 31);
 		ProfilePanel.add(PhoneNoLabel);
 		
-		JLabel label = new JLabel("");
-		label.setHorizontalTextPosition(SwingConstants.LEFT);
-		label.setHorizontalAlignment(SwingConstants.LEFT);
-		label.setFont(new Font("Calibri", Font.PLAIN, 25));
-		label.setBounds(499, 13, 308, 31);
-		ProfilePanel.add(label);
+		Vector<Student> vs =loadProfile();
 		
-		JLabel label_1 = new JLabel("");
-		label_1.setHorizontalTextPosition(SwingConstants.LEFT);
-		label_1.setHorizontalAlignment(SwingConstants.LEFT);
-		label_1.setFont(new Font("Calibri", Font.PLAIN, 25));
-		label_1.setBounds(499, 76, 308, 31);
-		ProfilePanel.add(label_1);
+		TitleLabel.setText("Welcome "+vs.firstElement().getFname()+"!");
 		
-		JLabel label_2 = new JLabel("");
-		label_2.setHorizontalTextPosition(SwingConstants.LEFT);
-		label_2.setHorizontalAlignment(SwingConstants.LEFT);
-		label_2.setFont(new Font("Calibri", Font.PLAIN, 25));
-		label_2.setBounds(499, 139, 308, 31);
-		ProfilePanel.add(label_2);
+		JLabel labelFN = new JLabel();
+		labelFN.setText(vs.firstElement().getFname());
+		labelFN.setHorizontalTextPosition(SwingConstants.LEFT);
+		labelFN.setHorizontalAlignment(SwingConstants.LEFT);
+		labelFN.setFont(new Font("Calibri", Font.PLAIN, 25));
+		labelFN.setBounds(499, 13, 308, 31);
+		ProfilePanel.add(labelFN);
 		
-		JLabel label_3 = new JLabel("");
-		label_3.setHorizontalTextPosition(SwingConstants.LEFT);
-		label_3.setHorizontalAlignment(SwingConstants.LEFT);
-		label_3.setFont(new Font("Calibri", Font.PLAIN, 25));
-		label_3.setBounds(499, 202, 308, 31);
-		ProfilePanel.add(label_3);
+		JLabel labelLN = new JLabel();
+		labelLN.setText(vs.firstElement().getLname());
+		labelLN.setHorizontalTextPosition(SwingConstants.LEFT);
+		labelLN.setHorizontalAlignment(SwingConstants.LEFT);
+		labelLN.setFont(new Font("Calibri", Font.PLAIN, 25));
+		labelLN.setBounds(499, 76, 308, 31);
+		ProfilePanel.add(labelLN);
 		
-		JLabel label_4 = new JLabel("");
-		label_4.setHorizontalTextPosition(SwingConstants.LEFT);
-		label_4.setHorizontalAlignment(SwingConstants.LEFT);
-		label_4.setFont(new Font("Calibri", Font.PLAIN, 25));
-		label_4.setBounds(499, 265, 308, 31);
-		ProfilePanel.add(label_4);
+		JLabel labelEmail = new JLabel();
+		labelEmail.setText(vs.firstElement().getEmail_id());
+		labelEmail.setHorizontalTextPosition(SwingConstants.LEFT);
+		labelEmail.setHorizontalAlignment(SwingConstants.LEFT);
+		labelEmail.setFont(new Font("Calibri", Font.PLAIN, 25));
+		labelEmail.setBounds(499, 139, 308, 31);
+		ProfilePanel.add(labelEmail);
 		
-		JLabel label_5 = new JLabel("");
-		label_5.setHorizontalTextPosition(SwingConstants.LEFT);
-		label_5.setHorizontalAlignment(SwingConstants.LEFT);
-		label_5.setFont(new Font("Calibri", Font.PLAIN, 25));
-		label_5.setBounds(499, 328, 308, 31);
-		ProfilePanel.add(label_5);
+		JLabel labelDept = new JLabel();
+		labelDept.setText(vs.firstElement().getDept());
+		labelDept.setHorizontalTextPosition(SwingConstants.LEFT);
+		labelDept.setHorizontalAlignment(SwingConstants.LEFT);
+		labelDept.setFont(new Font("Calibri", Font.PLAIN, 25));
+		labelDept.setBounds(499, 202, 308, 31);
+		ProfilePanel.add(labelDept);
 		
-		JLabel label_6 = new JLabel("");
-		label_6.setHorizontalTextPosition(SwingConstants.LEFT);
-		label_6.setHorizontalAlignment(SwingConstants.LEFT);
-		label_6.setFont(new Font("Calibri", Font.PLAIN, 25));
-		label_6.setBounds(499, 391, 308, 31);
-		ProfilePanel.add(label_6);
+		JLabel labelAdy = new JLabel();
+		labelAdy.setText(Integer.toString(vs.firstElement().getadmYear()));
+		labelAdy.setHorizontalTextPosition(SwingConstants.LEFT);
+		labelAdy.setHorizontalAlignment(SwingConstants.LEFT);
+		labelAdy.setFont(new Font("Calibri", Font.PLAIN, 25));
+		labelAdy.setBounds(499, 265, 308, 31);
+		ProfilePanel.add(labelAdy);
 		
-		JLabel label_7 = new JLabel("");
-		label_7.setHorizontalTextPosition(SwingConstants.LEFT);
-		label_7.setHorizontalAlignment(SwingConstants.LEFT);
-		label_7.setFont(new Font("Calibri", Font.PLAIN, 25));
-		label_7.setBounds(499, 454, 308, 31);
-		ProfilePanel.add(label_7);
+		JLabel labelEy = new JLabel();
+		labelEy.setText(vs.firstElement().getEngyear());
+		labelEy.setHorizontalTextPosition(SwingConstants.LEFT);
+		labelEy.setHorizontalAlignment(SwingConstants.LEFT);
+		labelEy.setFont(new Font("Calibri", Font.PLAIN, 25));
+		labelEy.setBounds(499, 328, 308, 31);
+		ProfilePanel.add(labelEy);
+		
+		JLabel labelUID = new JLabel();
+		labelUID.setText(Integer.toString(vs.firstElement().getId()));
+		labelUID.setHorizontalTextPosition(SwingConstants.LEFT);
+		labelUID.setHorizontalAlignment(SwingConstants.LEFT);
+		labelUID.setFont(new Font("Calibri", Font.PLAIN, 25));
+		labelUID.setBounds(499, 391, 308, 31);
+		ProfilePanel.add(labelUID);
+		
+		JLabel labelPhone = new JLabel();
+		labelPhone.setText(Long.toString(vs.firstElement().getPhone_no()));
+		labelPhone.setHorizontalTextPosition(SwingConstants.LEFT);
+		labelPhone.setHorizontalAlignment(SwingConstants.LEFT);
+		labelPhone.setFont(new Font("Calibri", Font.PLAIN, 25));
+		labelPhone.setBounds(499, 454, 308, 31);
+		ProfilePanel.add(labelPhone);
 		
 		JSeparator separator = new JSeparator();
 		separator.setOrientation(SwingConstants.VERTICAL);
@@ -237,18 +305,168 @@ public class StudentDashboard extends JFrame {
 		PSeperatorH.setBounds(0, 217, 220, 1);
 		ProfilePanel.add(PSeperatorH);
 		
-		JLabel lblAdmissionStatus = new JLabel("Admission Status");
+		JLabel lblAdmissionStatus = new JLabel("Admission Status :");
 		lblAdmissionStatus.setHorizontalAlignment(SwingConstants.CENTER);
 		lblAdmissionStatus.setFont(new Font("Calibri", Font.PLAIN, 28));
-		lblAdmissionStatus.setBounds(902, 188, 200, 55);
+		lblAdmissionStatus.setBounds(902, 188, 207, 46);
 		ProfilePanel.add(lblAdmissionStatus);
 		
-		JLabel label_8 = new JLabel("");
+		JLabel label_8 = new JLabel("Pending");
 		label_8.setHorizontalAlignment(SwingConstants.CENTER);
 		label_8.setFont(new Font("Calibri", Font.PLAIN, 28));
-		label_8.setBounds(902, 288, 200, 55);
+		label_8.setBounds(902, 304, 200, 46);
 		ProfilePanel.add(label_8);
 		tabbedPane.addTab("<html><body><table width='370'>Fee Report</table></body></html>",FeePanel);
+		FeePanel.setLayout(null);
+		
+		JPanel InnerPanel = new JPanel();
+		InnerPanel.setBounds(0, 0, 1176, 433);
+		FeePanel.add(InnerPanel);
+		
+		Object[][] data ={
+			{"01", "Admission Fee", "Rs. 1,000/-","Rs. 500/-", "Rs. 2,000/-"},
+			{"02", "Tution Fee", "Rs. 6,000/-","Rs. 3,000/-", "Rs. 4,000/-"},
+			{"03", "University Development Fee", "Rs. 2,200/-","Rs. 2,200/-", "Rs. 2,200/-"},
+			{"04", "Identity Card", "Rs. 23/-","Rs. 23/-", "Rs. 23/-"},
+			{"05", "Admission Form", "Rs. 10/-","Rs. 10/-", "Rs. 10/-"},
+			{"06", "Medical Fee", "Rs. 50/-","Rs. 50/-", "Rs. 50/-"},
+			{"07", "Athletic Fee", "Rs. 21/-","Rs. 21/-", "Rs. 21/-"},
+			{"08", "Institute Fee", "Rs. 7/-","Rs. 7/-", "Rs. 7/-"},
+			{"09", "College Magazine", "Rs. 125/-","Rs. 125/-", "Rs. 125/-"},
+			{null, "TOTAL", "Rs. 9436/-","Rs. 5936/-", "Rs. 8436/-"}
+		};
+		
+		String columns[] = {"", "", "CS", "IT", "ENTC"};
+		
+		DefaultTableModel model = new DefaultTableModel(data, columns);
+		table = new JTable();
+		table.setRowHeight(40);
+		table.setModel(model); 
+		table.getColumnModel().getColumn(0).setPreferredWidth(50);
+		table.getColumnModel().getColumn(1).setPreferredWidth(300);
+		table.getColumnModel().getColumn(2).setPreferredWidth(110);
+		table.getColumnModel().getColumn(3).setPreferredWidth(110);
+		table.getColumnModel().getColumn(4).setPreferredWidth(110);
+		InnerPanel.setLayout(new GridLayout(0, 1, 0, 0));
+		table.setFont(new Font("Calibri", Font.PLAIN, 20));
+		table.setBounds(0, 0, 1176, 360);
+		
+		Font bigFont = new Font("Calibri", Font.PLAIN, 20); 
+		JTableHeader header = table.getTableHeader();
+		header.setFont(bigFont);
+		
+		JScrollPane scrollPane = new JScrollPane(table);
+		InnerPanel.add(scrollPane);
+		table.setFillsViewportHeight(true);
+		
+		JButton btnPayFee = new JButton("Pay Your Fee");
+		btnPayFee.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+			}
+		});
+		btnPayFee.setRequestFocusEnabled(false);
+		btnPayFee.setForeground(Color.WHITE);
+		btnPayFee.setFont(new Font("Calibri", Font.PLAIN, 25));
+		btnPayFee.setFocusPainted(false);
+		btnPayFee.setBackground(new Color(0, 102, 255));
+		btnPayFee.setBounds(374, 446, 373, 40);
+		FeePanel.add(btnPayFee);
+		
 		tabbedPane.addTab("<html><body><table width='370'>Update Details</table></body></html>",UpdatePanel);
+		
+		JLabel UFirstName = new JLabel("FirstName");
+		UFirstName.setFont(new Font("Calibri", Font.PLAIN, 25));
+		UFirstName.setBounds(76, 148, 104, 31);
+		UpdatePanel.add(UFirstName);
+		
+		UFirstNameTextField = new JTextField();
+		UFirstNameTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		UFirstNameTextField.setFont(new Font("Calibri", Font.PLAIN, 25));
+		UFirstNameTextField.setColumns(10);
+		UFirstNameTextField.setBounds(215, 145, 206, 37);
+		UpdatePanel.add(UFirstNameTextField);
+		
+		JLabel ULastName = new JLabel("LastName");
+		ULastName.setFont(new Font("Calibri", Font.PLAIN, 25));
+		ULastName.setBounds(675, 145, 101, 31);
+		UpdatePanel.add(ULastName);
+		
+		ULastNameTextField = new JTextField();
+		ULastNameTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		ULastNameTextField.setFont(new Font("Calibri", Font.PLAIN, 25));
+		ULastNameTextField.setColumns(10);
+		ULastNameTextField.setBounds(849, 142, 206, 37);
+		UpdatePanel.add(ULastNameTextField);
+		
+		JLabel UpdateUsername = new JLabel("Username");
+		UpdateUsername.setFont(new Font("Calibri", Font.PLAIN, 25));
+		UpdateUsername.setBounds(675, 220, 104, 31);
+		UpdatePanel.add(UpdateUsername);
+		
+		UUsernameTextField = new JTextField();
+		UUsernameTextField.setToolTipText("Used As Username\r\n");
+		UUsernameTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		UUsernameTextField.setFont(new Font("Calibri", Font.PLAIN, 25));
+		UUsernameTextField.setColumns(10);
+		UUsernameTextField.setBounds(849, 217, 206, 37);
+		UpdatePanel.add(UUsernameTextField);
+		
+		JLabel UpdatePass = new JLabel("Password");
+		UpdatePass.setFont(new Font("Calibri", Font.PLAIN, 25));
+		UpdatePass.setBounds(675, 296, 98, 31);
+		UpdatePanel.add(UpdatePass);
+		
+		UPassTextField = new JPasswordField();
+		UPassTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		UPassTextField.setFont(new Font("Calibri", Font.PLAIN, 25));
+		UPassTextField.setColumns(10);
+		UPassTextField.setBounds(849, 293, 206, 37);
+		UpdatePanel.add(UPassTextField);
+		
+		JLabel UpdateEmail = new JLabel("E-mail ID");
+		UpdateEmail.setFont(new Font("Calibri", Font.PLAIN, 25));
+		UpdateEmail.setBounds(76, 223, 91, 31);
+		UpdatePanel.add(UpdateEmail);
+		
+		UEmailTextField = new JTextField();
+		UEmailTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		UEmailTextField.setFont(new Font("Calibri", Font.PLAIN, 25));
+		UEmailTextField.setColumns(10);
+		UEmailTextField.setBounds(215, 220, 206, 37);
+		UpdatePanel.add(UEmailTextField);
+		
+		JLabel UpdatePhone = new JLabel("Phone No");
+		UpdatePhone.setFont(new Font("Calibri", Font.PLAIN, 25));
+		UpdatePhone.setBounds(76, 299, 99, 31);
+		UpdatePanel.add(UpdatePhone);
+		
+		UPhoneTextField = new JTextField();
+		UPhoneTextField.setHorizontalAlignment(SwingConstants.LEFT);
+		UPhoneTextField.setFont(new Font("Calibri", Font.PLAIN, 25));
+		UPhoneTextField.setColumns(10);
+		UPhoneTextField.setBounds(215, 296, 206, 37);
+		UpdatePanel.add(UPhoneTextField);
+		
+		JLabel lblNewLabel = new JLabel("Enter the details to Update or leave blank.");
+		lblNewLabel.setFont(new Font("Calibri", Font.PLAIN, 28));
+		lblNewLabel.setBounds(313, 13, 478, 56);
+		UpdatePanel.add(lblNewLabel);
+		
+		JButton btnUpdateDetails = new JButton("Update Details");
+		btnUpdateDetails.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+			}
+		});
+		btnUpdateDetails.setRequestFocusEnabled(false);
+		btnUpdateDetails.setForeground(Color.WHITE);
+		btnUpdateDetails.setFont(new Font("Calibri", Font.PLAIN, 25));
+		btnUpdateDetails.setFocusPainted(false);
+		btnUpdateDetails.setBackground(new Color(0, 102, 255));
+		btnUpdateDetails.setBounds(407, 396, 274, 56);
+		UpdatePanel.add(btnUpdateDetails);
 	}
 }

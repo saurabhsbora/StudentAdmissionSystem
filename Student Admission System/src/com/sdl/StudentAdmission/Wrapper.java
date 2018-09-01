@@ -11,7 +11,14 @@ public class Wrapper implements Serializable
 	private Vector<Student> vs;
 	private int operation = -1;
 	private int uid = -1;
+	private String msg;
 	
+	public Wrapper(Vector<Student> vs,String msg)
+	{
+		operation = 2;
+		this.vs = vs;
+		this.msg = msg;
+	}
 	public Wrapper(String type,String uname, String pass)
 	{
 		operation = 0;
@@ -50,5 +57,9 @@ public class Wrapper implements Serializable
 	public int getUID()
 	{
 		return uid;
+	}
+	public String getMsg()
+	{
+		return msg;
 	}
 }

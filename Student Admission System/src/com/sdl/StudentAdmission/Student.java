@@ -28,6 +28,13 @@ public class Student implements Comparable<Student>,Serializable
 		this.engyear = engyear;
 		
 	}
+	public Student(String fname, String lname, String email_id,long phone_no)
+	{
+		this.fname = fname;
+		this.lname = lname;
+		this.email_id = email_id;
+		this.phone_no = phone_no;
+	}
 	public String getEngyear() {
 		return engyear;
 	}

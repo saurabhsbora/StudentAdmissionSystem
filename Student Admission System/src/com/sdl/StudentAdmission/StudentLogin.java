@@ -15,6 +15,7 @@ import javax.swing.JPasswordField;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.awt.Cursor;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
@@ -24,7 +25,7 @@ public class StudentLogin extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField UsernameField;
+	public static JTextField UsernameField;
 	private JPasswordField passwordField;
 	private static ThreadedClient threadedClient;
 	public static JFrame firstchild;
@@ -48,7 +49,12 @@ public class StudentLogin extends JFrame {
 		threadedClient = new ThreadedClient();
 		new Thread(threadedClient).start();
 	}
-
+	public void setDashboard() throws ClassNotFoundException, IOException, SQLException, InterruptedException
+	{
+		StudentDashboard sd = new StudentDashboard();
+		sd.setVisible(true);
+		sd.setLocationRelativeTo(null);
+	}
 	public StudentLogin() throws IOException, InterruptedException {
 		firstchild = this;
 		setBounds(100, 100, 518, 392);
@@ -136,7 +142,7 @@ public class StudentLogin extends JFrame {
 					try {
 						bindToServer();
 						check(LoginButton);
-					} catch (IOException | InterruptedException e) {
+					} catch (IOException | InterruptedException | ClassNotFoundException | SQLException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
@@ -171,7 +177,7 @@ public class StudentLogin extends JFrame {
 		panel_1.add(RegisterButton);
 		setUndecorated(true);
 	}
-	public void check(JButton btn) throws IOException, InterruptedException
+	public void check(JButton btn) throws IOException, InterruptedException, ClassNotFoundException, SQLException
 	{
 		String ans;
 		String uname = UsernameField.getText();
@@ -180,8 +186,11 @@ public class StudentLogin extends JFrame {
 		Wrapper w = new Wrapper("Student",uname, pass);
 		threadedClient.sendObjectToServer(w);
 		ans = threadedClient.receiveMsgFromServer();	
-		if(ans.equals("Authorization Successfull"))		  
+		if(ans.equals("Authorization Successfull"))
+		{
 			JOptionPane.showMessageDialog(btn, "Authorization Successfull");
+			setDashboard();
+		}
 		else	
 			JOptionPane.showMessageDialog(btn, "Username or password does not match!");
 		threadedClient.close();

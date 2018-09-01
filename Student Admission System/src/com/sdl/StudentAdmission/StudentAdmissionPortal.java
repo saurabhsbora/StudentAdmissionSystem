@@ -41,8 +41,7 @@ public class StudentAdmissionPortal extends JFrame {
 		});
 	}
 	
-	
-	public StudentAdmissionPortal() {
+	public StudentAdmissionPortal() throws IOException, InterruptedException {
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 916, 508);
