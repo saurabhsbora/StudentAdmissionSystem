@@ -87,41 +87,43 @@ public class ThreadedServer extends Thread
 	}
 	public void run()
 	{
-		Wrapper wrap = null;
-		int ch;
-		try 
-		{
-			ois = new ObjectInputStream(sock.getInputStream());
-			wrap = (Wrapper)ois.readObject();
-		} 
-		catch (IOException | ClassNotFoundException e) 
-		{
-			e.printStackTrace();
-		} 
-		ch = wrap.getOperation();
-		switch(ch)
-		{
-		case 0: LoginRegister(wrap);
-				break;
-		case 1: try 
-				{
-				connectAdmin();
-				} 
-				catch (ClassNotFoundException | SQLException | IOException e) 
-				{
+			Wrapper wrap = null;
+			int ch;
+			try 
+			{
+				ois = new ObjectInputStream(sock.getInputStream());
+				wrap = (Wrapper)ois.readObject();
+			} 
+			catch (IOException | ClassNotFoundException e) 
+			{
 				e.printStackTrace();
-				}
-				break;
-		case 2: try {
-				connectStudent(wrap);
-			} catch (ClassNotFoundException | SQLException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} 
+			ch = wrap.getOperation();
+			switch(ch)
+			{
+				case 0: LoginRegister(wrap);
+						break;
+				case 1: try 
+						{
+							connectAdmin();
+						} 
+						catch (ClassNotFoundException | SQLException | IOException e) 
+						{
+							e.printStackTrace();
+						}
+						break;
+				case 2: try 
+						{
+							connectStudent(wrap);
+						} catch (ClassNotFoundException | SQLException | IOException e) {
+				
+							e.printStackTrace();
+						}
+						break;
 			}
-			break;
-		}
-	}
+	}	
 }
+
 
 
 

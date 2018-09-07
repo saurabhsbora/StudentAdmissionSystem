@@ -44,7 +44,7 @@ public class StudentDashboard extends JFrame {
 	private JPasswordField UPassTextField;
 	private JTextField UEmailTextField;
 	private JTextField UPhoneTextField;
-	private static ThreadedClient threadedClient;
+	private ThreadedClient threadedClient;
 	private Student s;
 	
 	public static void main(String[] args) {
@@ -77,13 +77,14 @@ public class StudentDashboard extends JFrame {
 		email = UEmailTextField.getText();
 		pno = Long.parseLong(UPhoneTextField.getText());
 		Student s = new Student(fname,lname,email,pno);
+		
 	}
 	public Vector<Student> loadProfile() throws IOException, InterruptedException, ClassNotFoundException
 	{
 		Wrapper wsend,wrecv;
 		Vector<Student> vs = null;
-		wsend = new Wrapper(vs,StudentLogin.UsernameField.getText());
 		bindToServer();
+		wsend = new Wrapper(vs,StudentLogin.UsernameField.getText());
 		threadedClient.sendObjectToServer(wsend);
 		wrecv = threadedClient.recieveObjectFromServer();
 		return wrecv.getStudentVector();

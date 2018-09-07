@@ -27,7 +27,7 @@ public class StudentLogin extends JFrame {
 	private JPanel contentPane;
 	public static JTextField UsernameField;
 	private JPasswordField passwordField;
-	private static ThreadedClient threadedClient;
+	private ThreadedClient threadedClient;
 	public static JFrame firstchild;
 
 
@@ -54,6 +54,7 @@ public class StudentLogin extends JFrame {
 		StudentDashboard sd = new StudentDashboard();
 		sd.setVisible(true);
 		sd.setLocationRelativeTo(null);
+		firstchild.setVisible(false);
 	}
 	public StudentLogin() throws IOException, InterruptedException {
 		firstchild = this;
