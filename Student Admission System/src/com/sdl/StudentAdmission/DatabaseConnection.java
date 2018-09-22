@@ -3,11 +3,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
-
-import com.mysql.jdbc.StringUtils;
 
 public class DatabaseConnection {
 
@@ -21,6 +17,12 @@ public class DatabaseConnection {
     	Class.forName("com.mysql.jdbc.Driver");
 	    System.out.println("Connecting to database...");
 	    conn = DriverManager.getConnection(DB_URL+dbname,USER,PASS);
+    }
+    public void deleteRecord(int uid) throws SQLException
+    {
+    	PreparedStatement preparedStatement = null;
+ 		preparedStatement = conn.prepareStatement("delete from records where uniqueID = '"+uid+"'");
+ 		preparedStatement.executeUpdate();
     }
     private String md5(String pass) throws NoSuchAlgorithmException 
 	{
@@ -82,7 +84,7 @@ public class DatabaseConnection {
 	{
 		PreparedStatement preparedStatement = null;
 		ResultSet resultSet = null;
-		int depyear=0,dep=0;
+		int depyear=0;
 		 
 		preparedStatement = conn.prepareStatement("Select count(*) from records where dept='"+d+"' and curr_year='"+y+"'");
 		resultSet = preparedStatement.executeQuery();
@@ -144,6 +146,20 @@ public class DatabaseConnection {
 			status = resultSet.getString(1);
 		}
 		return status;
+	}
+	public void update(Student s) throws SQLException
+	{
+		PreparedStatement preparedStatement = null;
+		
+		preparedStatement = conn.prepareStatement("update records set fname = ?, lname = ?, emailID = ?, dept = ?, admissionYear = ?, engineeringYear = ?, phoneNo = ? where uniqueID = '"+s.getId()+"'");
+		preparedStatement.setString(1, s.getFname());
+        preparedStatement.setString(2, s.getLname());
+        preparedStatement.setString(3, s.getEmail_id());
+        preparedStatement.setString(4, s.getDept());
+        preparedStatement.setInt(5, s.getadmYear());
+        preparedStatement.setString(6, s.getEngyear());
+        preparedStatement.setDouble(7,s.getPhone_no());
+        preparedStatement.executeUpdate();	
 	}
 	public int update(Wrapper w) throws SQLException, NoSuchAlgorithmException
 	{

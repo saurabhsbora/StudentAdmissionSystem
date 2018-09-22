@@ -5,10 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.Thread.State;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Scanner;
 
 public class ThreadedClient implements Runnable
 {
@@ -40,20 +37,17 @@ public class ThreadedClient implements Runnable
 	{
 		ois = new ObjectInputStream(clientsoc.getInputStream());
 		Wrapper w = (Wrapper)ois.readObject();
-		ois.close();
 		return w;
 	}
-	public  void sendMsgtoServer(String str) throws IOException
+	public void sendMsgtoServer(String str) throws IOException
 	{
 		dos = new DataOutputStream(clientsoc.getOutputStream());
 		dos.writeUTF(str);
-		dos.close();
 	}
-	public  String receiveMsgFromServer() throws IOException
+	public String receiveMsgFromServer() throws IOException
 	{
 		dis = new DataInputStream(clientsoc.getInputStream());
 		String msg = dis.readUTF();
-		dis.close();
 		return msg;
 	}
 	public void close() throws IOException

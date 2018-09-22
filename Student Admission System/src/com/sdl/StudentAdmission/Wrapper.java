@@ -58,10 +58,16 @@ public class Wrapper implements Serializable
 		this.uid = uid;
 		this.fr = fr;
 	}
-	public Wrapper(int uid)  
+	public Wrapper(int uid, int operation)  
 	{
-		operation = 5;
+		this.operation = operation;
 		this.uid = uid;
+	}
+	public Wrapper(Student s)
+	{
+		operation = 7;
+		vs = new Vector<Student>();
+		vs.add(s);
 	}
 	public Vector<String> getVector()
 	{

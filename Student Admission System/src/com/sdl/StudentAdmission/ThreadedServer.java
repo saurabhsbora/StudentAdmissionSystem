@@ -1,6 +1,5 @@
 package com.sdl.StudentAdmission;
 
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -15,16 +14,11 @@ public class ThreadedServer extends Thread
 	private Socket sock;
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
-	private DataInputStream dis;
 	private DataOutputStream dos;
 	
 	ThreadedServer(Socket sock) throws IOException
 	{
 		this.sock = sock;
-		//ois = new ObjectInputStream(sock.getInputStream());
-		//oos = new ObjectOutputStream(sock.getOutputStream());
-		//dis = new DataInputStream(sock.getInputStream());
-		//dos = new DataOutputStream(sock.getOutputStream());
 	}
 	public void LoginRegister(Wrapper w)
 	{
@@ -90,8 +84,6 @@ public class ThreadedServer extends Thread
 	}
 	public void updateStudent(Wrapper w) throws ClassNotFoundException, SQLException, IOException, NoSuchAlgorithmException
 	{
-		Student s;
-		String uname, pass;
 		DatabaseConnection dc = new DatabaseConnection();
 		dos = new DataOutputStream(sock.getOutputStream());
 		if(dc.update(w) == 1)
@@ -115,6 +107,18 @@ public class ThreadedServer extends Thread
 		dos = new DataOutputStream(sock.getOutputStream());
 		ans = dc.getFeeStatus(w);
 		dos.writeUTF(ans);
+		dc.closeDatabaseConnection();
+	}
+	public void deleteStudentFromAdmin(Wrapper w) throws ClassNotFoundException, SQLException
+	{
+		DatabaseConnection dc = new DatabaseConnection();
+		dc.deleteRecord(w.getUID());
+		dc.closeDatabaseConnection();
+	}
+	public void updateFromAdmin(Wrapper w) throws ClassNotFoundException, SQLException
+	{
+		DatabaseConnection dc = new DatabaseConnection();
+		dc.update(w.getStudentVector().firstElement());
 		dc.closeDatabaseConnection();
 	}
 	public void run()
@@ -176,6 +180,21 @@ public class ThreadedServer extends Thread
 							e.printStackTrace();
 						}
 						break;
+				case 6: try 
+						{
+							deleteStudentFromAdmin(wrap);
+						} 
+						catch (ClassNotFoundException | SQLException e) {
+							e.printStackTrace();
+						}
+						break;
+				case 7: try 
+						{
+							updateFromAdmin(wrap);
+						} 
+						catch (ClassNotFoundException | SQLException e) {					
+							e.printStackTrace();
+						}
 			}
 	}	
 }

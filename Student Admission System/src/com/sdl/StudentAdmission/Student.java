@@ -85,6 +85,7 @@ public class Student implements Comparable<Student>,Serializable
 	}
 	public void register()
 	{
+		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Enter your First name:");
 		setFname(sc.next());

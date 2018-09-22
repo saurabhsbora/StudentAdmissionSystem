@@ -22,8 +22,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.awt.Cursor;
+import java.awt.event.MouseMotionAdapter;
 
 public class RegisterForm extends JFrame {
 
@@ -41,6 +41,7 @@ public class RegisterForm extends JFrame {
 	private JTextField UniqueID;
 	private ButtonGroup DeptGroup,EYGroup;
 	private final JButton Register;
+	private JFrame RegisterFrame;
 	private static ThreadedClient threadedClient;
 	
 	public static void main(String[] args) {
@@ -64,6 +65,7 @@ public class RegisterForm extends JFrame {
 	}
 	
 	public RegisterForm() {
+		RegisterFrame = this;
 		setUndecorated(true);
 		setBounds(100, 100, 518, 884);
 		contentPane = new JPanel();
@@ -72,6 +74,18 @@ public class RegisterForm extends JFrame {
 		contentPane.setLayout(null);
 		
 		JPanel panel = new JPanel();
+		panel.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				WindowDragger.panelMouseDragged(e, RegisterFrame);
+			}
+		});
+		panel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				WindowDragger.panelMousePressed(e);
+			}
+		});
 		panel.setLayout(null);
 		panel.setBackground(new Color(0, 102, 255));
 		panel.setBounds(0, 0, 518, 78);
@@ -335,7 +349,7 @@ public class RegisterForm extends JFrame {
 		FeeReport fee = new FeeReport(uid, dept);
 		w = new Wrapper(s,uid, usern, pass,fee);
 		threadedClient.sendObjectToServer(w);
-		JOptionPane.showMessageDialog(btn, "Successfully Registered");
+		JOptionPane.showMessageDialog(null, "Successfully Registered");
 		threadedClient.close();
 		dispose();
 		StudentLogin.firstchild.setVisible(true);

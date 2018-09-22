@@ -20,6 +20,7 @@ import java.awt.Cursor;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseMotionAdapter;
 
 public class AdminLogin extends JFrame {
 
@@ -27,6 +28,7 @@ public class AdminLogin extends JFrame {
 	private JPanel contentPane;
 	private JTextField UsernameField;
 	private JPasswordField passwordField;
+	private JFrame AdminLoginframe;
 	public static ThreadedClient threadedClient;
 	
 	
@@ -50,6 +52,7 @@ public class AdminLogin extends JFrame {
 		ad.setLocationRelativeTo(null);
 	}
 	public AdminLogin() {
+		AdminLoginframe = this;
 		setBounds(100, 100, 518, 392);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -57,6 +60,18 @@ public class AdminLogin extends JFrame {
 		contentPane.setLayout(null);
 		
 		JPanel panel = new JPanel();
+		panel.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				WindowDragger.panelMouseDragged(e, AdminLoginframe);
+			}
+		});
+		panel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				WindowDragger.panelMousePressed(e);
+			}
+		});
 		panel.setBackground(new Color(0, 102, 255));
 		panel.setBounds(0, 0, 518, 78);
 		contentPane.add(panel);

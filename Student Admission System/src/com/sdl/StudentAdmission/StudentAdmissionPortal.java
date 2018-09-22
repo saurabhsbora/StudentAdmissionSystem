@@ -19,6 +19,7 @@ import java.io.IOException;
 import javax.swing.UIManager;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseMotionAdapter;
 
 public class StudentAdmissionPortal extends JFrame {
 
@@ -51,6 +52,19 @@ public class StudentAdmissionPortal extends JFrame {
 		contentPane.setLayout(null);
 		
 		JPanel panel = new JPanel();
+		
+		panel.addMouseListener(new MouseAdapter() {
+			public void mousePressed(MouseEvent e) {
+				WindowDragger.panelMousePressed(e);
+			}
+		});
+		
+		panel.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				WindowDragger.panelMouseDragged(e, parent);
+			}
+		});
 		panel.setLayout(null);
 		panel.setBackground(new Color(0, 102, 255));
 		panel.setBounds(0, 0, 916, 78);

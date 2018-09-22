@@ -20,6 +20,7 @@ import java.awt.Cursor;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseMotionAdapter;
 
 public class StudentLogin extends JFrame {
 
@@ -65,6 +66,18 @@ public class StudentLogin extends JFrame {
 		contentPane.setLayout(null);
 		
 		JPanel panel = new JPanel();
+		panel.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				WindowDragger.panelMouseDragged(e, firstchild);
+			}
+		});
+		panel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				WindowDragger.panelMousePressed(e);
+			}
+		});
 		panel.setBackground(new Color(0, 102, 255));
 		panel.setBounds(0, 0, 518, 78);
 		contentPane.add(panel);
@@ -189,11 +202,11 @@ public class StudentLogin extends JFrame {
 		ans = threadedClient.receiveMsgFromServer();	
 		if(ans.equals("Authorization Successfull"))
 		{
-			JOptionPane.showMessageDialog(btn, "Authorization Successfull");
+			JOptionPane.showMessageDialog(null, "Authorization Successfull");
 			setDashboard();
 		}
 		else	
-			JOptionPane.showMessageDialog(btn, "Username or password does not match!");
+			JOptionPane.showMessageDialog(null, "Username or password does not match!");
 		threadedClient.close();
 	}
 }

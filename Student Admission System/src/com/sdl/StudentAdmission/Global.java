@@ -1,7 +1,6 @@
 package com.sdl.StudentAdmission;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.HashMap;
 public class Global 
 {
 	public static Set<Student> obj = new TreeSet<Student>();

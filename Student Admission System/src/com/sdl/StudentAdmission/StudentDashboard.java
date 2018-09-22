@@ -28,16 +28,17 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
+import java.awt.event.MouseMotionAdapter;
 
 public class StudentDashboard extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
+	private JFrame StudentDashboardFrame;
 	private JTable table;
 	private JTextField UFirstNameTextField;
 	private JTextField ULastNameTextField;
@@ -46,7 +47,6 @@ public class StudentDashboard extends JFrame {
 	private JTextField UEmailTextField;
 	private JTextField UPhoneTextField;
 	private ThreadedClient threadedClient;
-	private Student s;
 	private Vector<Student> vs;
 	
 	public static void main(String[] args) {
@@ -70,7 +70,7 @@ public class StudentDashboard extends JFrame {
 	{
 		Wrapper wsend;
 		String ans;
-		wsend = new Wrapper(vs.firstElement().getId());
+		wsend = new Wrapper(vs.firstElement().getId(), 5);
 		bindToServer();
 		threadedClient.sendObjectToServer(wsend);
 		ans = threadedClient.receiveMsgFromServer();
@@ -125,6 +125,7 @@ public class StudentDashboard extends JFrame {
 		return wrecv.getStudentVector();
 	}
 	public StudentDashboard() throws ClassNotFoundException, IOException, InterruptedException {
+		StudentDashboardFrame = this;
 		setUndecorated(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1181, 632);
@@ -134,6 +135,18 @@ public class StudentDashboard extends JFrame {
 		contentPane.setLayout(null);
 		
 		JPanel panel = new JPanel();
+		panel.addMouseMotionListener(new MouseMotionAdapter() {
+			@Override
+			public void mouseDragged(MouseEvent e) {
+				WindowDragger.panelMouseDragged(e, StudentDashboardFrame);
+			}
+		});
+		panel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				WindowDragger.panelMousePressed(e);
+			}
+		});
 		panel.setLayout(null);
 		panel.setBackground(new Color(0, 102, 255));
 		panel.setBounds(0, 0, 1181, 78);
