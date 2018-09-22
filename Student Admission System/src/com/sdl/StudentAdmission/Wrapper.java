@@ -12,12 +12,27 @@ public class Wrapper implements Serializable
 	private int operation = -1;
 	private int uid = -1;
 	private String msg;
+	private FeeReport fr;
 	
 	public Wrapper(Vector<Student> vs,String msg)
 	{
 		operation = 2;
 		this.vs = vs;
 		this.msg = msg;
+	}
+	public Wrapper(Student s, String uname, String pass,int uid)
+	{
+		operation = 3;
+		vs = new Vector<Student>();
+		vs.add(s);
+		v.add(uname);
+		v.add(pass);
+		this.uid = uid;
+	}
+	public Wrapper(FeeReport fr)
+	{
+		operation = 4;
+		this.fr = fr;
 	}
 	public Wrapper(String type,String uname, String pass)
 	{
@@ -32,7 +47,7 @@ public class Wrapper implements Serializable
 		operation = 1;
 		this.vs = vs;
 	}
-	public Wrapper(Student s,int uid,String uname, String pass)
+	public Wrapper(Student s,int uid,String uname, String pass, FeeReport fr)
 	{
 		operation = 0;
 		vs = new Vector<Student>();
@@ -40,6 +55,12 @@ public class Wrapper implements Serializable
 		v.add("Register");
 		v.add(uname);
 		v.add(pass);
+		this.uid = uid;
+		this.fr = fr;
+	}
+	public Wrapper(int uid)  
+	{
+		operation = 5;
 		this.uid = uid;
 	}
 	public Vector<String> getVector()
@@ -61,5 +82,11 @@ public class Wrapper implements Serializable
 	public String getMsg()
 	{
 		return msg;
+	}
+	public FeeReport getFr() {
+		return fr;
+	}
+	public void setFr(FeeReport fr) {
+		this.fr = fr;
 	}
 }

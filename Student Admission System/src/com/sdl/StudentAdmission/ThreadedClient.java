@@ -24,7 +24,6 @@ public class ThreadedClient implements Runnable
 			clientsoc = new Socket("localhost",5057);
 			System.out.println("Connected to Server");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -59,6 +58,7 @@ public class ThreadedClient implements Runnable
 	}
 	public void close() throws IOException
 	{
+		System.out.println("Closed");
 		clientsoc.close();
 	}
 }

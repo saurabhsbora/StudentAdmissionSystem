@@ -18,6 +18,7 @@ import javax.swing.ImageIcon;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.Vector;
 
 import javax.swing.JTabbedPane;
@@ -46,6 +47,7 @@ public class StudentDashboard extends JFrame {
 	private JTextField UPhoneTextField;
 	private ThreadedClient threadedClient;
 	private Student s;
+	private Vector<Student> vs;
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -64,20 +66,52 @@ public class StudentDashboard extends JFrame {
 		threadedClient = new ThreadedClient();
 		new Thread(threadedClient).start();
 	}
-	public void UpdateDetails()
+	public String getFeePaidStatus() throws IOException, InterruptedException
 	{
-		String fname,lname,uname,email,pass;
+		Wrapper wsend;
+		String ans;
+		wsend = new Wrapper(vs.firstElement().getId());
+		bindToServer();
+		threadedClient.sendObjectToServer(wsend);
+		ans = threadedClient.receiveMsgFromServer();
+		threadedClient.close();
+		return ans;
+	}
+	public String updateFeeReport() throws ParseException, IOException, InterruptedException
+	{
+		Wrapper wsend;
+		String ans;
+		FeeReport fr = new FeeReport(vs.firstElement().getId(), vs.firstElement().getDept());
+		fr.setFee_date(FeeReport.getcurrentSqlDate());
+		fr.setStatus("P");
+		wsend = new Wrapper(fr);
+		bindToServer();
+		threadedClient.sendObjectToServer(wsend);
+		ans = threadedClient.receiveMsgFromServer();
+		threadedClient.close();
+		return ans;
+	}
+	public String UpdateDetails() throws IOException, InterruptedException
+	{
+		String fname = null,lname = null ,uname = null ,email = null ,pass = null, ans = null;
 		char [] p;
-		long pno;
+		long pno = 0;
+		Wrapper wsend;
 		p = UPassTextField.getPassword();
 		pass = new String(p);
 		fname = UFirstNameTextField.getText();
 		lname = ULastNameTextField.getText();
 		uname = UUsernameTextField.getText();
 		email = UEmailTextField.getText();
-		pno = Long.parseLong(UPhoneTextField.getText());
+		if(!UPhoneTextField.getText().equals(""))
+			pno = Long.parseLong(UPhoneTextField.getText());		
 		Student s = new Student(fname,lname,email,pno);
-		
+		wsend = new Wrapper(s,uname,pass,vs.firstElement().getId());
+		bindToServer();
+		threadedClient.sendObjectToServer(wsend);
+		ans = threadedClient.receiveMsgFromServer();
+		threadedClient.close();
+		return ans;
 	}
 	public Vector<Student> loadProfile() throws IOException, InterruptedException, ClassNotFoundException
 	{
@@ -87,6 +121,7 @@ public class StudentDashboard extends JFrame {
 		wsend = new Wrapper(vs,StudentLogin.UsernameField.getText());
 		threadedClient.sendObjectToServer(wsend);
 		wrecv = threadedClient.recieveObjectFromServer();
+		threadedClient.close();
 		return wrecv.getStudentVector();
 	}
 	public StudentDashboard() throws ClassNotFoundException, IOException, InterruptedException {
@@ -224,7 +259,7 @@ public class StudentDashboard extends JFrame {
 		PhoneNoLabel.setBounds(303, 454, 184, 31);
 		ProfilePanel.add(PhoneNoLabel);
 		
-		Vector<Student> vs =loadProfile();
+		vs =loadProfile();
 		
 		TitleLabel.setText("Welcome "+vs.firstElement().getFname()+"!");
 		
@@ -312,11 +347,16 @@ public class StudentDashboard extends JFrame {
 		lblAdmissionStatus.setBounds(902, 188, 207, 46);
 		ProfilePanel.add(lblAdmissionStatus);
 		
-		JLabel label_8 = new JLabel("Pending");
-		label_8.setHorizontalAlignment(SwingConstants.CENTER);
-		label_8.setFont(new Font("Calibri", Font.PLAIN, 28));
-		label_8.setBounds(902, 304, 200, 46);
-		ProfilePanel.add(label_8);
+		final String reply = getFeePaidStatus();
+		JLabel labelStatus = new JLabel();
+		if(reply.equals("P"))
+			labelStatus.setText("Admitted!");
+		else
+			labelStatus.setText("Pending");
+		labelStatus.setHorizontalAlignment(SwingConstants.CENTER);
+		labelStatus.setFont(new Font("Calibri", Font.PLAIN, 28));
+		labelStatus.setBounds(902, 265, 200, 46);
+		ProfilePanel.add(labelStatus);
 		tabbedPane.addTab("<html><body><table width='370'>Fee Report</table></body></html>",FeePanel);
 		FeePanel.setLayout(null);
 		
@@ -360,11 +400,27 @@ public class StudentDashboard extends JFrame {
 		InnerPanel.add(scrollPane);
 		table.setFillsViewportHeight(true);
 		
-		JButton btnPayFee = new JButton("Pay Your Fee");
+		final JButton btnPayFee = new JButton("Pay Your Fee"); 
+		if(reply.equals("P"))
+		{
+			btnPayFee.setText("Paid");
+			btnPayFee.setEnabled(false);
+		}
 		btnPayFee.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+				try {
+						if(reply.equals("NP"))
+						{
+							String ans = updateFeeReport();
+							JOptionPane.showMessageDialog(btnPayFee, ans);
+							btnPayFee.setEnabled(false);
+							btnPayFee.setText("Paid");
+						}
+					}
+					catch (IOException | InterruptedException | ParseException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 		btnPayFee.setRequestFocusEnabled(false);
@@ -455,11 +511,18 @@ public class StudentDashboard extends JFrame {
 		lblNewLabel.setBounds(313, 13, 478, 56);
 		UpdatePanel.add(lblNewLabel);
 		
-		JButton btnUpdateDetails = new JButton("Update Details");
+		final JButton btnUpdateDetails = new JButton("Update Details");
 		btnUpdateDetails.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+				try {
+						String s = UpdateDetails();
+						JOptionPane.showMessageDialog(btnUpdateDetails, s);
+					
+				} catch (IOException | InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		btnUpdateDetails.setRequestFocusEnabled(false);

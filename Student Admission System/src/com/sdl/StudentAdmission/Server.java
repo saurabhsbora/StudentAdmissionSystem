@@ -1,14 +1,18 @@
 package com.sdl.StudentAdmission;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Server implements Runnable
 {
 	ServerSocket ss;
-	ArrayList<ThreadedServer> connections = new ArrayList<ThreadedServer>();
+	HashMap<InetAddress,String> connections = new HashMap<>();
+	int i = 0;
+	//ArrayList<ThreadedServer> connections = new ArrayList<ThreadedServer>();
 	public Server()
 	{
 		
@@ -18,6 +22,8 @@ public class Server implements Runnable
         try 
         {
 			ss = new ServerSocket(5057);
+			System.out.println("Server Started");
+			System.out.println("Waiting for Clients.....");
 		} 
         catch (IOException e1) 
         {
@@ -25,19 +31,26 @@ public class Server implements Runnable
 		}
         while (true) 
         {
-        	System.out.println("Server Started");
-			System.out.println("Waiting for Clients.....");
             try
             { 
             	Socket newclient = ss.accept();
-                 
-                System.out.println("A new client is connected : " + newclient);  
-                System.out.println("Assigning new thread for this client");
                 
+            	if(connections.isEmpty() || !connections.containsKey(newclient.getInetAddress()))
+            	{
+            		i = i+1;
+            		String info = "Client :"+ Integer.toString(i);
+            		System.out.println("A new client is connected : " + info);  
+            		System.out.println("Assigning new thread for this client");
+            		connections.put(newclient.getInetAddress(),info);
+            	}
+            	else
+            	{
+            		System.out.println(connections.get(newclient.getInetAddress()) + " connected");
+            	}
                 ThreadedServer ts = new ThreadedServer(newclient);
                 new Thread(ts).start();
                 
-                connections.add(ts);  
+                  
             }
             catch (Exception e)
             {

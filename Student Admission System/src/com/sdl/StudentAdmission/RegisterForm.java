@@ -331,7 +331,9 @@ public class RegisterForm extends JFrame {
 		pno = Long.parseLong(PhoneNo.getText());
 		ay = Integer.parseInt(AdmissionYear.getText());
 		s = new Student(fn,ln,eid,dept,ey,ay,uid,pno);
-		w = new Wrapper(s,uid, usern, pass);
+		
+		FeeReport fee = new FeeReport(uid, dept);
+		w = new Wrapper(s,uid, usern, pass,fee);
 		threadedClient.sendObjectToServer(w);
 		JOptionPane.showMessageDialog(btn, "Successfully Registered");
 		threadedClient.close();

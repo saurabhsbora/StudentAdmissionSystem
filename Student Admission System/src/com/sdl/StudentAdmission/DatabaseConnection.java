@@ -3,7 +3,11 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
+
+import com.mysql.jdbc.StringUtils;
 
 public class DatabaseConnection {
 
@@ -18,6 +22,14 @@ public class DatabaseConnection {
 	    System.out.println("Connecting to database...");
 	    conn = DriverManager.getConnection(DB_URL+dbname,USER,PASS);
     }
+    private String md5(String pass) throws NoSuchAlgorithmException 
+	{
+		 MessageDigest md = MessageDigest.getInstance("MD5");
+	     byte[] messageDigest = md.digest(pass.getBytes());
+	     BigInteger number = new BigInteger(1, messageDigest);
+	     String hashstring = number.toString(16);
+	     return hashstring;
+	}
 	public void writeTomysql(Student s) throws SQLException
 	{
 	    PreparedStatement preparedStatement = null;
@@ -37,15 +49,33 @@ public class DatabaseConnection {
 	public void writeCredentials(int a, String b, String c) throws NoSuchAlgorithmException, SQLException
 	{
 		 PreparedStatement preparedStatement = null;
-		 MessageDigest md = MessageDigest.getInstance("MD5");
-	     byte[] messageDigest = md.digest(c.getBytes());
-	     BigInteger number = new BigInteger(1, messageDigest);
-	     String hashstring = number.toString(16);
 		
-		 preparedStatement = conn.prepareStatement("insert into authenticate values(?, ?, ?)");
+	     String hashstring = md5(c);
+		
+		 preparedStatement = conn.prepareStatement("insert into student_credentials values(?, ?, ?)");
 		 preparedStatement.setInt(1, a);
 		 preparedStatement.setString(2, b);
 		 preparedStatement.setString(3, hashstring);
+		 preparedStatement.executeUpdate();
+	}
+	public void payFee(FeeReport fr) throws SQLException
+	{
+		PreparedStatement preparedStatement = null;
+		
+		 preparedStatement = conn.prepareStatement("update fee set payment_date = ?, status = ? where uniqueID = '"+fr.getUid()+"'");
+		 preparedStatement.setDate(1, fr.getFee_date());
+		 preparedStatement.setString(2, fr.getStatus());
+		 preparedStatement.executeUpdate();
+	}
+	public void writeFeeReport(FeeReport fr) throws SQLException
+	{
+		PreparedStatement preparedStatement = null;
+		
+		 preparedStatement = conn.prepareStatement("insert into fee values(?, ?, ?, ?)");
+		 preparedStatement.setInt(1, fr.getUid());
+		 preparedStatement.setInt(2, fr.getAmount());
+		 preparedStatement.setDate(3, fr.getFee_date());
+		 preparedStatement.setString(4, fr.getStatus());
 		 preparedStatement.executeUpdate();
 	}
 	public void count(String d,String y) throws SQLException
@@ -93,16 +123,91 @@ public class DatabaseConnection {
 		preparedStatement = conn.prepareStatement(query);
 		resultSet = preparedStatement.executeQuery();
 		
-		MessageDigest md = MessageDigest.getInstance("MD5");
-        byte[] messageDigest = md.digest(p.getBytes());
-        BigInteger number = new BigInteger(1, messageDigest);
-        String cstring = number.toString(16);
-        //System.out.println(cstring);
-		while(resultSet.next())
+        String cstring = md5(p);
+      	
+        while(resultSet.next())
 		{
 			un = resultSet.getString(1);
 			pw = resultSet.getString(2);
 		}
 		return(un.equals(u) && pw.equals(cstring));
+	}
+	public String getFeeStatus(Wrapper w) throws SQLException
+	{
+		String status = null;
+		PreparedStatement preparedStatement = null;
+		ResultSet resultSet = null;
+		preparedStatement = conn.prepareStatement("Select status from fee where uniqueID = '"+w.getUID()+"'");
+		resultSet = preparedStatement.executeQuery();
+		while(resultSet.next())
+		{
+			status = resultSet.getString(1);
+		}
+		return status;
+	}
+	public int update(Wrapper w) throws SQLException, NoSuchAlgorithmException
+	{
+		String fname, lname, uname, email, pass;
+		long pno;
+		int uid;
+		int ctr = 0;
+		PreparedStatement preparedStatement = null;
+		
+		uid = w.getUID();
+		fname = w.getStudentVector().firstElement().getFname();
+		lname = w.getStudentVector().firstElement().getLname();
+		email = w.getStudentVector().firstElement().getEmail_id();
+		pno = w.getStudentVector().firstElement().getPhone_no();
+		uname = w.getVector().elementAt(0);
+		pass = w.getVector().elementAt(1);
+		
+		if(!fname.equals(""))
+		{
+		   preparedStatement = conn.prepareStatement("update records set fname = ? where uniqueID = '"+uid+"'");
+		   preparedStatement.setString(1, fname);
+		   preparedStatement.executeUpdate();
+		   ctr = 1;
+		}
+		if(!lname.equals(""))
+		{
+		   preparedStatement = conn.prepareStatement("update records set lname = ? where uniqueID = '"+uid+"'");
+		   preparedStatement.setString(1, lname);
+		   preparedStatement.executeUpdate();
+		   ctr = 1;
+		}
+		if(!email.equals(""))
+		{
+		   preparedStatement = conn.prepareStatement("update records set emailID = ? where uniqueID = '"+uid+"'");
+		   preparedStatement.setString(1, email);
+		   preparedStatement.executeUpdate();
+		   ctr = 1;
+		}
+		if(pno != 0)
+		{
+		   preparedStatement = conn.prepareStatement("update records set phoneNo = ? where uniqueID = '"+uid+"'");
+		   preparedStatement.setLong(1, pno);
+		   preparedStatement.executeUpdate();
+		   ctr = 1;
+		}
+		if(!uname.equals(""))
+		{
+		   preparedStatement = conn.prepareStatement("update student_credentials set username = ? where uniqueID = '"+uid+"'");
+		   preparedStatement.setString(1, uname);
+		   preparedStatement.executeUpdate();
+		   ctr = 1;
+		}
+		if(!pass.equals(""))
+		{
+			preparedStatement = conn.prepareStatement("update student_credentials set password = ? where uniqueID = '"+uid+"'");
+			preparedStatement.setString(1, md5(pass));
+			preparedStatement.executeUpdate();
+			ctr = 1;
+		}
+		return ctr;
+	}
+	public void closeDatabaseConnection() throws SQLException
+	{
+		System.out.println("Closed DB connection");
+		conn.close();
 	}
 }

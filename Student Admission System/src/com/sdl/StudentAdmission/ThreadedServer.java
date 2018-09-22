@@ -29,7 +29,7 @@ public class ThreadedServer extends Thread
 	public void LoginRegister(Wrapper w)
 	{
 		Vector<String> v;
-		//Vector<Student> vs;
+		FeeReport fr;
 		boolean ch;
 		try
 		{
@@ -38,9 +38,9 @@ public class ThreadedServer extends Thread
 			if(v.firstElement().equals("Login"))
 			{
 				if(v.elementAt(1).equals("Student"))
-					ch = dc.validate(v.elementAt(2),v.elementAt(3) ,"select username,password from authenticate where username = '"+v.elementAt(2)+"'");
+					ch = dc.validate(v.elementAt(2),v.elementAt(3) ,"select username,password from student_credentials where username = '"+v.elementAt(2)+"'");
 				else
-					ch = dc.validate(v.elementAt(2),v.elementAt(3) ,"select username,password from admin");
+					ch = dc.validate(v.elementAt(2),v.elementAt(3) ,"select username,password from admin_credentials");
 				dos = new DataOutputStream(sock.getOutputStream());
 				if(ch)
 				{
@@ -58,18 +58,19 @@ public class ThreadedServer extends Thread
 			{
 				dc.writeTomysql(w.getStudentVector().firstElement());
 				v = w.getVector();
+				fr = w.getFr();
 				dc.writeCredentials(w.getUID(), v.elementAt(1), v.elementAt(2));
+				dc.writeFeeReport(fr);
 			}
+			dc.closeDatabaseConnection();
 		} catch (ClassNotFoundException | IOException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 		} catch (SQLException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 		}
+		
 	}
 	public void connectAdmin() throws ClassNotFoundException, SQLException, IOException
 	{
@@ -77,13 +78,44 @@ public class ThreadedServer extends Thread
 		Wrapper w = new Wrapper(dc.retrieveMysql("Select * from records"));
 		oos = new ObjectOutputStream(sock.getOutputStream());
 		oos.writeObject(w);
+		dc.closeDatabaseConnection();
 	}
 	public void connectStudent(Wrapper w) throws ClassNotFoundException, SQLException, IOException
 	{
 		DatabaseConnection dc = new DatabaseConnection();
-		Wrapper w1 = new Wrapper(dc.retrieveMysql("Select r.* from records r, authenticate a where r.uniqueID = a.uniqueID and a.username = '"+w.getMsg()+"'"));
+		Wrapper w1 = new Wrapper(dc.retrieveMysql("Select r.* from records r, student_credentials s where r.uniqueID = s.uniqueID and s.username = '"+w.getMsg()+"'"));
 		oos = new ObjectOutputStream(sock.getOutputStream());
 		oos.writeObject(w1);
+		dc.closeDatabaseConnection();
+	}
+	public void updateStudent(Wrapper w) throws ClassNotFoundException, SQLException, IOException, NoSuchAlgorithmException
+	{
+		Student s;
+		String uname, pass;
+		DatabaseConnection dc = new DatabaseConnection();
+		dos = new DataOutputStream(sock.getOutputStream());
+		if(dc.update(w) == 1)
+			dos.writeUTF("Updated Successfully");
+		else
+			dos.writeUTF("Nothing to update");
+		dc.closeDatabaseConnection();
+	}
+	public void updateFeeReport(Wrapper w) throws ClassNotFoundException, SQLException, IOException
+	{
+		DatabaseConnection dc = new DatabaseConnection();
+		dc.payFee(w.getFr());
+		dos = new DataOutputStream(sock.getOutputStream());
+		dos.writeUTF("Fee paid Successfully");
+		dc.closeDatabaseConnection();
+	}
+	public void sendFeeStatus(Wrapper w) throws ClassNotFoundException, SQLException, IOException
+	{
+		String ans;
+		DatabaseConnection dc = new DatabaseConnection();
+		dos = new DataOutputStream(sock.getOutputStream());
+		ans = dc.getFeeStatus(w);
+		dos.writeUTF(ans);
+		dc.closeDatabaseConnection();
 	}
 	public void run()
 	{
@@ -117,6 +149,30 @@ public class ThreadedServer extends Thread
 							connectStudent(wrap);
 						} catch (ClassNotFoundException | SQLException | IOException e) {
 				
+							e.printStackTrace();
+						}
+						break;
+				case 3: try 
+						{
+							updateStudent(wrap);
+						} 
+						catch (ClassNotFoundException | SQLException | IOException | NoSuchAlgorithmException e) 
+						{
+							e.printStackTrace();
+						}
+						break;
+				case 4:	try 
+						{
+							updateFeeReport(wrap);
+						} 
+						catch (ClassNotFoundException | SQLException | IOException e) {
+							e.printStackTrace();
+						}
+						break;
+				case 5: try 
+						{
+							sendFeeStatus(wrap);
+						} catch (ClassNotFoundException | SQLException | IOException e) {
 							e.printStackTrace();
 						}
 						break;
