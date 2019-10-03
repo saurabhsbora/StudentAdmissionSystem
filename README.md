@@ -1,6 +1,7 @@
 # StudentAdmissionSystem
 GUI based Student Admission System using Java.  
-Concepts involved : *Swings (GUI), Multithreading, Client-Server Model, JDBC connectivity, Socket Programming, Collection & Generics.*
+Concepts involved : *Swings (GUI), Multithreading, Client-Server Model, JDBC connectivity, Socket Programming, Collection & Generics.*  
+![Home Screen](https://raw.githubusercontent.com/enthussb/StudentAdmissionSystem/master/Student%20Admission%20System/screenshots/Home.png)
 
 ## Functionalities
 - Student Registration & Authentication
