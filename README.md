@@ -1,6 +1,6 @@
 # StudentAdmissionSystem
-GUI based Student Admission System based on Java.  
-Multithreaded client-server architecture model. 
+GUI based Student Admission System using Java.  
+Concepts involved : *Swings (GUI), Multithreading, Client-Server Model, JDBC connectivity, Socket Programming, Collection & Generics.*
 
 ## Functionalities
 - Student Registration & Authentication
@@ -14,6 +14,7 @@ Multithreaded client-server architecture model.
   - Sorting on all fields
   - Update any particular record
   - Export records in csv format
+- MD5 hashing to store passwords securely
 
 ## Development Environment
 - JDK 8
@@ -59,3 +60,10 @@ CREATE TABLE `student_credentials` (
   PRIMARY KEY (`uniqueID`)
 )
 ```
+
+## How to Run this application
+1. Clone this repository
+2. Configure the environment for this web application
+3. Run the `Server.java` to start the server and start listening to clients
+4. Run the `StudentAdmissionPortal.java` to initialize a client and start the application
+
