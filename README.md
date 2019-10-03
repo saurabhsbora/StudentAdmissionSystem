@@ -64,7 +64,8 @@ CREATE TABLE `student_credentials` (
 
 ## How to Run this application
 1. Clone this repository
-2. Configure the environment for this web application
-3. Run the `Server.java` to start the server and start listening to clients
-4. Run the `StudentAdmissionPortal.java` to initialize a client and start the application
+2. Configure the environment for this application
+3. Navigate to `Student Admission System/src/com/sdl/StudentAdmission/`
+4. Run the `Server.java` to start the server and start listening to clients
+5. Run the `StudentAdmissionPortal.java` to initialize a client and start the application
 
